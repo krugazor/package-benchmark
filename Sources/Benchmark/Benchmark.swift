@@ -95,8 +95,8 @@ public final class Benchmark: Codable, Hashable {
     /// asyncClosure: The actual benchmark (async) closure that will be measured
     var asyncClosure: BenchmarkAsyncClosure? // The actual benchmark to run
     // setup/teardown hooks for the instance
-    var setup: BenchmarkSetupHook?
-    var teardown: BenchmarkTeardownHook?
+    public internal(set)var setup: BenchmarkSetupHook?
+    public internal(set)var teardown: BenchmarkTeardownHook?
 
     /// The state returned from setup, if any - need to be cast as required
     public var setupState: Any?

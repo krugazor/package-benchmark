@@ -4,7 +4,7 @@ import class Foundation.ProcessInfo
 import PackageDescription
 
 // If the environment variable BENCHMARK_DISABLE_JEMALLOC is set, we'll build the package without Jemalloc support
-let disableJemalloc = ProcessInfo.processInfo.environment["BENCHMARK_DISABLE_JEMALLOC"]
+var disableJemalloc = ProcessInfo.processInfo.environment["BENCHMARK_DISABLE_JEMALLOC"]
 
 let package = Package(
     name: "Benchmark",
@@ -113,7 +113,7 @@ let package = Package(
 )
 // Check if this is a SPI build, then we need to disable jemalloc for macOS
 
-let macOSSPIBuild: Bool // Disables jemalloc for macOS SPI builds as the infrastructure doesn't have jemalloc there
+var macOSSPIBuild: Bool // Disables jemalloc for macOS SPI builds as the infrastructure doesn't have jemalloc there
 
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
     if let spiBuildEnvironment = ProcessInfo.processInfo.environment["SPI_BUILD"], spiBuildEnvironment == "1" {
@@ -125,6 +125,10 @@ let macOSSPIBuild: Bool // Disables jemalloc for macOS SPI builds as the infrast
 #else
     macOSSPIBuild = false
 #endif
+
+// For use in UI/Apps
+macOSSPIBuild = true
+disableJemalloc = "1"
 
 // Add Benchmark target dynamically
 

@@ -14,8 +14,8 @@
 
 // swiftlint:disable file_length
 
-struct BenchmarkExecutor { // swiftlint:disable:this type_body_length
-    init(quiet: Bool = false) {
+public struct BenchmarkExecutor { // swiftlint:disable:this type_body_length
+    public init(quiet: Bool = false) {
         self.quiet = quiet
     }
 
@@ -23,7 +23,7 @@ struct BenchmarkExecutor { // swiftlint:disable:this type_body_length
     let operatingSystemStatsProducer = OperatingSystemStatsProducer()
 
     // swiftlint:disable cyclomatic_complexity function_body_length
-    func run(_ benchmark: Benchmark) -> [BenchmarkResult] {
+  public func run(_ benchmark: Benchmark, display: ((Int)->Void)? = nil) -> [BenchmarkResult] {
         var wallClockDuration: Duration = .zero
         var startMallocStats = MallocStats()
         var stopMallocStats = MallocStats()
@@ -376,6 +376,7 @@ struct BenchmarkExecutor { // swiftlint:disable:this type_body_length
             iterations += 1
 
             if iterations < 1_000 || iterations.isMultiple(of: 500) { // only update for low iteration count benchmarks, else 1/500
+              var maxPercentage : Double = 0
                 if var progressBar {
                     let iterationsPercentage = 100.0 * Double(iterations) /
                         Double(benchmark.configuration.maxIterations)
@@ -383,14 +384,32 @@ struct BenchmarkExecutor { // swiftlint:disable:this type_body_length
                     let timePercentage = 100.0 * (wallClockDuration /
                         benchmark.configuration.maxDuration)
 
-                    let maxPercentage = max(iterationsPercentage, timePercentage)
+                    maxPercentage = max(iterationsPercentage, timePercentage)
 
                     // Small optimization to not update every single percentage point
                     if Int(maxPercentage) > nextPercentageToUpdateProgressBar {
                         progressBar.setValue(Int(maxPercentage))
-                        nextPercentageToUpdateProgressBar = Int(maxPercentage) + Int.random(in: 3 ... 9)
                     }
                 }
+              
+              if let display {
+                let iterationsPercentage = 100.0 * Double(iterations) /
+                Double(benchmark.configuration.maxIterations)
+                
+                let timePercentage = 100.0 * (wallClockDuration /
+                                              benchmark.configuration.maxDuration)
+                
+                maxPercentage = max(iterationsPercentage, timePercentage)
+                
+                // Small optimization to not update every single percentage point
+                if Int(maxPercentage) > nextPercentageToUpdateProgressBar {
+                  display(Int(maxPercentage))
+                }
+              }
+
+              if display != nil || progressBar != nil {
+                nextPercentageToUpdateProgressBar = Int(maxPercentage) + Int.random(in: 3 ... 9)
+              }
             }
         }
 
